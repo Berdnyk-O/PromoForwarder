@@ -7,4 +7,11 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="EAGetMail" Version="5.3.1.7" />
+    <PackageReference Include="MailKit" Version="4.3.0" />
+    <PackageReference Include="OpenPop" Version="2.0.6.2" />
+    <PackageReference Include="SSH.NET" Version="2024.0.0" />
+  </ItemGroup>
+
 </Project>
