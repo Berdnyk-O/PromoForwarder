@@ -1,5 +1,6 @@
 ﻿using OpenPop.Mime;
 using OpenPop.Pop3;
+using System.Text.RegularExpressions;
 
 namespace PromoForwarder
 {
@@ -10,6 +11,8 @@ namespace PromoForwarder
         protected bool useSsl = true;
 
         private readonly Pop3Client _client;
+
+        private string _regex = @"\s*знижк.\s*";
 
         public POPEmail()
         {
@@ -28,8 +31,8 @@ namespace PromoForwarder
             for (int i = messageCount; i > 0; i--)
             {
                 Message message = _client.GetMessage(i);
-                Console.WriteLine(message.Headers.Subject + " " + message.Headers.Date + "\n");
-                
+                Match m = Regex.Match(message.Headers.Subject, _regex, RegexOptions.IgnoreCase);
+                Console.WriteLine(message.Headers.Subject + " " + message.Headers.Date + " "+ m.Success + "\n");
             }
         }
     }
