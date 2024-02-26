@@ -1,4 +1,5 @@
-﻿using OpenPop.Pop3;
+﻿using OpenPop.Mime;
+using OpenPop.Pop3;
 
 namespace PromoForwarder
 {
@@ -16,12 +17,20 @@ namespace PromoForwarder
             _client.Connect(POP3HOST, POP3PORT, useSsl);
             _client.Authenticate("email", "password", AuthenticationMethod.UsernameAndPassword);
 
-
-            Console.WriteLine("\nConnecting to POP3 server using SSL.");
-            int messageCount = _client.GetMessageCount();
-            Console.WriteLine("Total Messages: " + messageCount);
+            Console.WriteLine("Connecting to POP3 server using SSL.");
         }
 
-        
+        public void GoThroughEmails()
+        {
+            int messageCount = _client.GetMessageCount();
+            Console.WriteLine($"Message count: {messageCount}");
+
+            for (int i = messageCount; i > 0; i--)
+            {
+                Message message = _client.GetMessage(i);
+                Console.WriteLine(message.Headers.Subject + " " + message.Headers.Date + "\n");
+                
+            }
+        }
     }
 }
