@@ -7,4 +7,4 @@ EmailForwarder forwarder = new EmailForwarder();
 reader.FindUnreadEmailsMatchingRegex();
 Dictionary<int, Message> messages = reader.Messages;
 
-forwarder.ForwardEmail(messages[0]);
+forwarder.ForwardEmails(messages.Values.ToList());

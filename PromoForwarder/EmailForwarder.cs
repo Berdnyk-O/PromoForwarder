@@ -21,17 +21,21 @@ namespace PromoForwarder
             _SmtpClient.Credentials = basicAuthenticationInfo;
         }
 
-        public void ForwardEmail(Message message)
+        public void ForwardEmails(List<Message> messages)
         {
             try
             {
-                MailMessage mail = GetMailMessage("addressFrom", "addressTo");
-                SetContent(
-                    mail,
-                    message.Headers.Subject,
-                    message.FindFirstHtmlVersion().GetBodyAsText());
+                foreach (var message in messages)
+                {
+                    MailMessage mail = GetMailMessage("addressFrom", "addressTo");
+                    SetContent(
+                        mail,
+                        message.Headers.Subject,
+                        message.FindFirstHtmlVersion().GetBodyAsText());
 
-                _SmtpClient.Send(mail);
+                    _SmtpClient.Send(mail);
+                }
+               
             }
             catch (SmtpException ex)
             {
