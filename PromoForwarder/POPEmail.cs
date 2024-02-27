@@ -8,14 +8,17 @@ namespace PromoForwarder
     {
         protected const int POP3PORT = 995;
         protected const string POP3HOST = "pop.gmail.com";
-        protected bool useSsl = true;
+        protected bool useSsl;
 
         private readonly Pop3Client _client;
 
-        private string _regex = @"\s*знижк.\s*";
+        protected string _regex;
 
-        public POPEmail()
+        public POPEmail(string regex = @"\s*знижк.\s*")
         {
+            useSsl = true;
+            _regex=regex;
+
             _client = new Pop3Client();
             _client.Connect(POP3HOST, POP3PORT, useSsl);
             _client.Authenticate("email", "password", AuthenticationMethod.UsernameAndPassword);
