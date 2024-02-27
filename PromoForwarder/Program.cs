@@ -1,4 +1,5 @@
 ﻿using PromoForwarder;
 
 POPEmail popClient = new();
-popClient.GoThroughEmails();
+popClient.FindEmailsMatchingRegex();
+popClient.ForwardEmail();
