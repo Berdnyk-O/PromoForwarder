@@ -18,7 +18,7 @@ namespace PromoForwarder
         private Dictionary<int, Message> _messages;
         public Dictionary<int, Message> Messages { get =>  _messages; }
 
-        public EmailReader(string regex = @"\s*знижк.\s*")
+        public EmailReader(string email, string password, string regex = @"\s*знижк.\s*")
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -28,19 +28,21 @@ namespace PromoForwarder
 
             _client = new Pop3Client();
             _client.Connect(POP3HOST, POP3PORT, useSsl);
-            _client.Authenticate("email", "password", AuthenticationMethod.UsernameAndPassword);
+            _client.Authenticate(email, password, AuthenticationMethod.UsernameAndPassword);
 
             Console.WriteLine("Connecting to POP3 server using SSL.");
         }
 
         public void FindUnreadEmailsMatchingRegex()
         {
-            //int messageCount = _client.GetMessageCount();
-            int messageCount = 10;
-            Console.WriteLine($"Message count: {messageCount}");
+            int messageCount = _client.GetMessageCount();
+            
+            messageCount = 10;
 
+            Console.WriteLine($"Message count: {messageCount}");
+            Message message1 = _client.GetMessage(1);
             int j = 0;
-            for (int i = messageCount; i > 0; i--)
+            for (int i = messageCount; i>0; i--)
             {
                 Message message = _client.GetMessage(i);
                 Match m = Regex.Match(message.Headers.Subject, regEx, RegexOptions.IgnoreCase);

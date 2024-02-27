@@ -6,28 +6,34 @@ namespace PromoForwarder
 {
     internal class EmailForwarder
     {
-        protected const int POP3PORT = 995;
+        protected const int SMTPPORT = 587;
         protected const string SMTPHOST = "smtp.gmail.com";
-        protected bool useSsl = true;
+        protected bool useSsl;
 
         private readonly SmtpClient _SmtpClient;
+        private readonly string _senderMail;
 
-        public EmailForwarder()
+        public EmailForwarder(string senderMail, string senderMailPass)
         {
-            _SmtpClient = new(SMTPHOST);
+            useSsl = true;
+
+            _SmtpClient = new(SMTPHOST, SMTPPORT);
             _SmtpClient.UseDefaultCredentials = false;
             _SmtpClient.EnableSsl = useSsl;
-            NetworkCredential basicAuthenticationInfo = new("example@gmail.com", "password");
+
+            _senderMail = senderMail;
+            
+            NetworkCredential basicAuthenticationInfo = new(senderMail, senderMailPass);
             _SmtpClient.Credentials = basicAuthenticationInfo;
         }
 
-        public void ForwardEmails(List<Message> messages)
+        public void ForwardEmails(List<Message> messages, string recipientMail)
         {
             try
             {
                 foreach (var message in messages)
                 {
-                    MailMessage mail = GetMailMessage("addressFrom", "addressTo");
+                    MailMessage mail = GetMailMessage(_senderMail, recipientMail);
                     SetContent(
                         mail,
                         message.Headers.Subject,
@@ -50,9 +56,9 @@ namespace PromoForwarder
 
         public MailMessage GetMailMessage(string addressFrom, string addressTo)
         {
-            MailAddress from = new MailAddress(addressFrom);
-            MailAddress to = new MailAddress(addressTo);
-            MailMessage mail = new MailMessage(from, to);
+            MailAddress from = new(addressFrom);
+            MailAddress to = new(addressTo);
+            MailMessage mail = new(from, to);
 
             return mail;
         }
