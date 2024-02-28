@@ -5,8 +5,8 @@ namespace PromoForwarder
     [DisallowConcurrentExecution]
     internal class ForwardPromoJob : IJob
     {
-        private EmailReader _emailReader;
-        private EmailForwarder _emailForwarder;
+        private readonly EmailReader _emailReader;
+        private readonly EmailForwarder _emailForwarder;
 
         private readonly string _recipientEmail;
 

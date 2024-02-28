@@ -10,21 +10,21 @@ namespace PromoForwarder
         protected const string SMTPHOST = "smtp.gmail.com";
         protected bool useSsl;
 
-        private readonly SmtpClient _SmtpClient;
+        private readonly SmtpClient _smtpClient;
         private readonly string _senderMail;
 
         public EmailForwarder(string senderMail, string senderMailPass)
         {
             useSsl = true;
 
-            _SmtpClient = new(SMTPHOST, SMTPPORT);
-            _SmtpClient.UseDefaultCredentials = false;
-            _SmtpClient.EnableSsl = useSsl;
+            _smtpClient = new(SMTPHOST, SMTPPORT);
+            _smtpClient.UseDefaultCredentials = false;
+            _smtpClient.EnableSsl = useSsl;
 
             _senderMail = senderMail;
             
             NetworkCredential basicAuthenticationInfo = new(senderMail, senderMailPass);
-            _SmtpClient.Credentials = basicAuthenticationInfo;
+            _smtpClient.Credentials = basicAuthenticationInfo;
         }
 
         public void ForwardEmails(List<Message> messages, string recipientMail)
@@ -40,7 +40,7 @@ namespace PromoForwarder
                         message.Headers.Subject,
                         message.FindFirstHtmlVersion().GetBodyAsText());
 
-                    _SmtpClient.Send(mail);
+                    //_SmtpClient.Send(mail);
                 }
 
                 Console.WriteLine("All emails have been sent successfully");
@@ -50,11 +50,6 @@ namespace PromoForwarder
                 throw new ApplicationException
                   ("SmtpException has occured: " + ex.Message);
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            
         }
 
         public MailMessage GetMailMessage(string addressFrom, string addressTo)
@@ -75,7 +70,7 @@ namespace PromoForwarder
 
         public void Dispose()
         {
-            _SmtpClient.Dispose();
+            _smtpClient.Dispose();
         }
     }
 }

@@ -14,7 +14,7 @@ namespace PromoForwarder
 
         protected string regEx;
 
-        private Dictionary<int, Message> _messages;
+        private readonly Dictionary<int, Message> _messages;
         public Dictionary<int, Message> Messages { get =>  _messages; }
 
         public EmailReader(string email, string password, string regex = @"\s*знижк.\s*")

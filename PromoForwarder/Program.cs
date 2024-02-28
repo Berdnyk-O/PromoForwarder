@@ -12,11 +12,17 @@ LogProvider.SetCurrentLogProvider(new ConsoleLogProvider());
 string? SenderMail = ConfigurationManager.AppSettings["SenderMail"];
 string? SenderMailPass = ConfigurationManager.AppSettings["SenderMailPass"];
 string? RecipientMail = ConfigurationManager.AppSettings["RecipientMail"];
+string? cronSchedule = ConfigurationManager.AppSettings["CronSchedule"];
 
 if (string.IsNullOrEmpty(SenderMail) || string.IsNullOrEmpty(SenderMailPass) || string.IsNullOrEmpty(RecipientMail))
 {
     Console.WriteLine("Error while receiving configuration data");
     return;
+}
+
+if (string.IsNullOrEmpty(cronSchedule))
+{
+    cronSchedule = "0 30 10 ? * WED,FRI";
 }
 
 var builder = Host.CreateDefaultBuilder()
@@ -31,7 +37,7 @@ var builder = Host.CreateDefaultBuilder()
             {
                 opt.ForJob(jobKey)
                 .WithIdentity("ForwardPromoJob")
-                .WithCronSchedule("0/5 * * * * ?");
+                .WithCronSchedule(cronSchedule);
             });
         });
         services.AddQuartzHostedService(opt =>
@@ -46,7 +52,7 @@ var builder = Host.CreateDefaultBuilder()
         {
             var emailReader = serviceProvider.GetRequiredService<EmailReader>();
             var emailForwarder = serviceProvider.GetRequiredService<EmailForwarder>();
-            return new ForwardPromoJob(emailReader, emailForwarder, RecipientMail);
+            return new(emailReader, emailForwarder, RecipientMail);
         });
     }).Build();
 
