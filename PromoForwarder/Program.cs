@@ -30,7 +30,6 @@ var builder = Host.CreateDefaultBuilder()
     {
         services.AddQuartz(q =>
         {
-            q.UseMicrosoftDependencyInjectionJobFactory();
             var jobKey = new JobKey("ForwardPromoJob-trigger");
             q.AddJob<ForwardPromoJob>(opt => opt.WithIdentity(jobKey));
             q.AddTrigger(opt =>

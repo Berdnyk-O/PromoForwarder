@@ -40,7 +40,7 @@ namespace PromoForwarder
                         message.Headers.Subject,
                         message.FindFirstHtmlVersion().GetBodyAsText());
 
-                    //_SmtpClient.Send(mail);
+                    _smtpClient.Send(mail);
                 }
 
                 Console.WriteLine("All emails have been sent successfully");
