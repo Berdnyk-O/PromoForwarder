@@ -4,7 +4,7 @@ using OpenPop.Mime;
 
 namespace PromoForwarder
 {
-    internal class EmailForwarder
+    internal class EmailForwarder : IDisposable
     {
         protected const int SMTPPORT = 587;
         protected const string SMTPHOST = "smtp.gmail.com";
@@ -29,6 +29,7 @@ namespace PromoForwarder
 
         public void ForwardEmails(List<Message> messages, string recipientMail)
         {
+            Console.WriteLine("...Forwarding emails...");
             try
             {
                 foreach (var message in messages)
@@ -41,7 +42,8 @@ namespace PromoForwarder
 
                     _SmtpClient.Send(mail);
                 }
-               
+
+                Console.WriteLine("All emails have been sent successfully");
             }
             catch (SmtpException ex)
             {
@@ -52,6 +54,7 @@ namespace PromoForwarder
             {
                 throw ex;
             }
+            
         }
 
         public MailMessage GetMailMessage(string addressFrom, string addressTo)
@@ -68,6 +71,11 @@ namespace PromoForwarder
             mail.Subject = subject;
             mail.Body = body;
             mail.IsBodyHtml = true;
+        }
+
+        public void Dispose()
+        {
+            _SmtpClient.Dispose();
         }
     }
 }

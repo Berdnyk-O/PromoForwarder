@@ -1,6 +1,4 @@
 ﻿using Quartz;
-using System.Globalization;
-
 
 namespace PromoForwarder
 {
@@ -10,7 +8,7 @@ namespace PromoForwarder
         private EmailReader _emailReader;
         private EmailForwarder _emailForwarder;
 
-        private string _recipientEmail;
+        private readonly string _recipientEmail;
 
         public ForwardPromoJob(EmailReader emailReader, EmailForwarder emailForwarder, string recipientEmail)
         {
@@ -20,26 +18,31 @@ namespace PromoForwarder
 
             if (_emailReader == null)
             {
-                throw new ArgumentNullException("EmailReader cennnot be null");
+                throw new ArgumentNullException("Email Reader cennnot be null");
             }
             if (_emailForwarder == null)
             {
-                throw new ArgumentNullException("EmailForwarder cennnot be null");
+                throw new ArgumentNullException("Email Forwarder cennnot be null");
             }
-            if (recipientEmail == null)
+            if (string.IsNullOrEmpty(recipientEmail))
             {
-                throw new ArgumentNullException("recipientEmail cennnot be null");
+                throw new ArgumentNullException("Recipient Email cennnot be null");
             }
         }
 
-        public async Task Execute(IJobExecutionContext context)
+        public Task Execute(IJobExecutionContext context)
         {
             _emailReader.FindUnreadEmailsMatchingRegex();
             var messages = _emailReader.Messages;
 
-            await Console.Out.WriteLineAsync($"Founded {messages.Count} messages");
+            Console.WriteLine($"Founded {messages.Count} matching messages");
 
             _emailForwarder.ForwardEmails(messages.Values.ToList(), _recipientEmail);
+
+            _emailReader.Dispose();
+            _emailForwarder.Dispose();
+
+            return Task.CompletedTask;
         }
     }
 }

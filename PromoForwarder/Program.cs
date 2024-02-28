@@ -1,5 +1,4 @@
-﻿using OpenPop.Mime;
-using PromoForwarder;
+﻿using PromoForwarder;
 using System.Configuration;
 using Microsoft.Extensions.Hosting;
 using Quartz;
@@ -7,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Quartz.Logging;
 using System.Text;
 
-//Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 LogProvider.SetCurrentLogProvider(new ConsoleLogProvider());
 
 string? SenderMail = ConfigurationManager.AppSettings["SenderMail"];
@@ -32,14 +31,13 @@ var builder = Host.CreateDefaultBuilder()
             {
                 opt.ForJob(jobKey)
                 .WithIdentity("ForwardPromoJob")
-                .WithCronSchedule("10 * * * * ?");
+                .WithCronSchedule("0/5 * * * * ?");
             });
         });
         services.AddQuartzHostedService(opt =>
         {
             opt.WaitForJobsToComplete = true;
         });
-    
         services.AddScoped<EmailReader>(x =>
             new(SenderMail, SenderMailPass));
         services.AddScoped<EmailForwarder>(x =>
