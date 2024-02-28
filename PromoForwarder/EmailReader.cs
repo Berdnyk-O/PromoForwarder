@@ -1,6 +1,5 @@
 ﻿using OpenPop.Mime;
 using OpenPop.Pop3;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace PromoForwarder
@@ -20,15 +19,13 @@ namespace PromoForwarder
 
         public EmailReader(string email, string password, string regex = @"\s*знижк.\s*")
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
             useSsl = true;
             regEx = regex;
             _messages = [];
 
             _client = new Pop3Client();
             _client.Connect(POP3HOST, POP3PORT, useSsl);
-            _client.Authenticate(email, password, AuthenticationMethod.UsernameAndPassword);
+            _client.Authenticate("recent:"+email, password, AuthenticationMethod.UsernameAndPassword);
 
             Console.WriteLine("Connecting to POP3 server using SSL.");
         }
