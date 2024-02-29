@@ -1,10 +1,18 @@
-﻿using OpenPop.Mime;
-using PromoForwarder;
+﻿using PromoForwarder;
 using System.Configuration;
+using Microsoft.Extensions.Hosting;
+using Quartz;
+using Microsoft.Extensions.DependencyInjection;
+using Quartz.Logging;
+using System.Text;
+
+Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+LogProvider.SetCurrentLogProvider(new ConsoleLogProvider());
 
 string? SenderMail = ConfigurationManager.AppSettings["SenderMail"];
 string? SenderMailPass = ConfigurationManager.AppSettings["SenderMailPass"];
 string? RecipientMail = ConfigurationManager.AppSettings["RecipientMail"];
+string? cronSchedule = ConfigurationManager.AppSettings["CronSchedule"];
 
 if (string.IsNullOrEmpty(SenderMail) || string.IsNullOrEmpty(SenderMailPass) || string.IsNullOrEmpty(RecipientMail))
 {
@@ -12,10 +20,39 @@ if (string.IsNullOrEmpty(SenderMail) || string.IsNullOrEmpty(SenderMailPass) || 
     return;
 }
 
-EmailReader reader = new EmailReader(SenderMail, SenderMailPass);
-EmailForwarder forwarder = new EmailForwarder(SenderMail, SenderMailPass);
+if (string.IsNullOrEmpty(cronSchedule))
+{
+    cronSchedule = "0 30 10 ? * WED,FRI";
+}
 
-reader.FindUnreadEmailsMatchingRegex();
-Dictionary<int, Message> messages = reader.Messages;
+var builder = Host.CreateDefaultBuilder()
+    .ConfigureServices((cxt, services) =>
+    {
+        services.AddQuartz(q =>
+        {
+            var jobKey = new JobKey("ForwardPromoJob-trigger");
+            q.AddJob<ForwardPromoJob>(opt => opt.WithIdentity(jobKey));
+            q.AddTrigger(opt =>
+            {
+                opt.ForJob(jobKey)
+                .WithIdentity("ForwardPromoJob")
+                .WithCronSchedule(cronSchedule);
+            });
+        });
+        services.AddQuartzHostedService(opt =>
+        {
+            opt.WaitForJobsToComplete = true;
+        });
+        services.AddScoped<EmailReader>(x =>
+            new(SenderMail, SenderMailPass));
+        services.AddScoped<EmailForwarder>(x =>
+            new(SenderMail, SenderMailPass));
+        services.AddScoped<ForwardPromoJob>(serviceProvider =>
+        {
+            var emailReader = serviceProvider.GetRequiredService<EmailReader>();
+            var emailForwarder = serviceProvider.GetRequiredService<EmailForwarder>();
+            return new(emailReader, emailForwarder, RecipientMail);
+        });
+    }).Build();
 
-forwarder.ForwardEmails(messages.Values.ToList(), RecipientMail);
+await builder.RunAsync();
