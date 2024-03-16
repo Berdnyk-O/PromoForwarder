@@ -7,7 +7,6 @@ using Quartz.Logging;
 using System.Text;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-LogProvider.SetCurrentLogProvider(new ConsoleLogProvider());
 
 string? SenderMail = ConfigurationManager.AppSettings["SenderMail"];
 string? SenderMailPass = ConfigurationManager.AppSettings["SenderMailPass"];
